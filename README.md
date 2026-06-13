@@ -82,6 +82,10 @@ CMS's standard for jet reconstruction. The quadtree decomposition mirrors this h
 
 Every 125×125×8 image becomes a point cloud before entering any model. I extract only non-zero pixels and represent each as a 4D point:
 
+```
+(row_norm, col_norm, energy_norm, track_pT_norm)
+```
+
 Energy is the max across all 8 channels. track_pT is channel 1, kept separate. Everything gets normalized to [0, 1], points are sorted by energy (highest first), and padded to 512 points.
 
 ![Raw calorimeter images and point cloud representation](plots/point_cloud_conversion.png)
@@ -129,45 +133,30 @@ I applied global L1 magnitude pruning at ratios from 0% to 90% and tracked FLOPS
 ---
 
 ## Repository Layout
+
+```
 sparse-jet-classification/
-
 ├── utils/
-
 │   └── sparse.py                    # image_to_points() conversion
-
 ├── datasets/
-
 │   └── jet_dataset.py               # Dataset classes and caching
-
 ├── models/
-
 │   ├── pointnet.py                  # PointNet++ encoder
-
 │   ├── autoencoder.py               # FoldingDecoder + pretraining
-
 │   └── classifier.py                # Shared classifier head
-
 ├── phase2/
-
 │   ├── quadtree.py                  # Quadtree decomposition
-
 │   ├── sparse_encoder.py            # SparseMLP + DGCNN
-
 │   └── train_hybrid.py              # Phase 2 training
-
 ├── notebooks/
-
 │   ├── Phase1_Results.ipynb         # Phase 1 evaluation
-
 │   └── Phase2_Results.ipynb         # Phase 2 evaluation
-
 ├── plots/                           # Visualization outputs
-
 ├── train_pretrain.py                # Unsupervised pretraining
-
 ├── train_finetune.py                # Supervised fine-tuning
+└── prune_and_plot.py                # Pruning analysis
+```
 
-└── prune_and_plot.py                # Pruning analysis 
 ---
 
 ## Getting Started
@@ -185,9 +174,12 @@ pip install h5py scikit-learn matplotlib seaborn pandas fvcore
 
 ### Data
 
-Place your datasets here:data/unlabelled/Dataset_Specific_Unlabelled.h5
-
+Place your datasets here:
+```
+data/unlabelled/Dataset_Specific_Unlabelled.h5
 data/labelled/Dataset_Specific_labelled_full_only_for_2i.h5
+```
+
 ### Training
 
 ```bash
@@ -250,3 +242,21 @@ Multi-class extension (top quark, W boson, QCD) would test whether these efficie
 ## Stack
 
 PyTorch 2.6 • PyTorch Geometric • CUDA 12.8 • h5py • scikit-learn • fvcore • Python 3.10
+
+---
+
+## References
+
+[1] B. Graham and L. van der Maaten. *Submanifold Sparse Convolutional Networks*. Facebook AI Research, June 2017. [arXiv:1706.01307](https://arxiv.org/abs/1706.01307)
+
+[2] Y. Yang, C. Feng, Y. Shen, D. Tian. *FoldingNet: Point Cloud Auto-encoder via Deep Grid Deformation*. [arXiv:1712.07262](https://arxiv.org/abs/1712.07262)
+
+[3] M. Andrews, J. Alison, S. An, B. Burkle, S. Gleyzer, M. Narain, M. Paulini, B. Poczos, E. Usai. *End-to-End Jet Classification of Quarks and Gluons with the CMS Open Data*. Carnegie Mellon University, Brown University, University of Alabama, CERN.
+
+---
+
+## Dataset & Acknowledgements
+
+The labelled and unlabelled CMS calorimeter datasets used in this project were provided by [ML4SCI](https://ml4sci.org/) and are publicly available at the [NERSC data portal](https://portal.nersc.gov/cfs/m4392/G25/).
+
+This project began as a task submission for ML4SCI's Google Summer of Code (GSoC) program, and was later restructured and extended into the standalone portfolio project presented here.
